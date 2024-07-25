@@ -8,7 +8,7 @@ import { RepositoryEnum } from 'src/shared/generic-enums/repository_enum';
 import { IUserRepository } from 'src/modules/auth/database/repositories/abstract/IUser.repository';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
-import { IUserFiltered, IValidateUserDTO } from './login.dto';
+import { IValidateUserDTO, UserFiltered } from './login.dto';
 
 @Injectable()
 export class LoginService {
@@ -33,7 +33,7 @@ export class LoginService {
       throw new UnauthorizedException('Email e/ou senha inválidos');
     }
 
-    const userFiltered: IUserFiltered = {
+    const userFiltered: UserFiltered = {
       id: userExists.id,
       name: userExists.name,
       email: userExists.email,

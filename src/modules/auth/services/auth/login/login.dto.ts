@@ -3,8 +3,8 @@ export interface IValidateUserDTO {
   password: string;
 }
 
-export interface IUserFiltered {
+export type UserFiltered = {
   id: string;
   name: string;
   email: string;
-}
+};
