@@ -15,4 +15,16 @@ describe('GetAllCoinsService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  it('should return a list of all coins', async () => {
+    const result = await service.execute();
+
+    expect(result).toBeDefined();
+  });
+
+  it('should throw an error if something goes wrong', async () => {
+    jest.spyOn(service, 'execute').mockRejectedValue(new Error());
+
+    await expect(service.execute()).rejects.toThrowError();
+  });
 });
