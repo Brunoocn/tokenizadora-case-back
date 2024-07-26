@@ -35,7 +35,6 @@ export class RegisterService {
     return {
       name: user.name,
       email: user.email,
-      password: password,
     };
   }
 

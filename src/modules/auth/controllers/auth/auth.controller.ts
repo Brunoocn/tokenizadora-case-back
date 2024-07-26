@@ -21,9 +21,7 @@ export class AuthController {
   async loginUser(
     @Body() { email, password }: LoginDTO,
   ): Promise<ILoginResponseDTO> {
-    const data = await this.loginService.execute({ email, password });
-
-    return data;
+    return this.loginService.execute({ email, password });
   }
 
   @SkipAuth()
@@ -31,8 +29,6 @@ export class AuthController {
   async registerUser(
     @Body() { name, email, password }: RegisterDTO,
   ): Promise<IRegisterResponseDTO> {
-    const data = await this.registerService.execute({ name, email, password });
-
-    return data;
+    return this.registerService.execute({ name, email, password });
   }
 }
