@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { SkipAuth } from 'src/commom/decorators/skipAuth.decorator';
+
 import {
   ILoginResponseDTO,
   IRegisterResponseDTO,
@@ -8,6 +8,7 @@ import {
 } from './authController.dto';
 import { LoginService } from '../../services/auth/login/login.service';
 import { RegisterService } from '../../services/auth/register/register.service';
+import { SkipAuth } from 'src/common/decorators/skipAuth.decorator';
 
 @Controller('auth')
 export class AuthController {

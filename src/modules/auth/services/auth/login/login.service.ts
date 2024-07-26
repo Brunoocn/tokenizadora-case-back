@@ -29,7 +29,7 @@ export class LoginService {
 
     await this.validateUserPassword({
       inputPassword: password,
-      userPassword: userExists,
+      userPassword: userExists.password,
     });
 
     const userFiltered: UserFiltered = {
