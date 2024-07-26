@@ -24,14 +24,13 @@ export class LoginService {
     });
 
     if (!userExists) {
-      throw new NotFoundException('Usuario não encontrardado');
+      throw new NotFoundException('Email e/ou senha inválidos');
     }
 
-    const isPasswordMatch = await compare(password, userExists.password);
-
-    if (!isPasswordMatch) {
-      throw new UnauthorizedException('Email e/ou senha inválidos');
-    }
+    await this.validateUserPassword({
+      inputPassword: password,
+      userPassword: userExists,
+    });
 
     const userFiltered: UserFiltered = {
       id: userExists.id,
@@ -53,5 +52,13 @@ export class LoginService {
       token,
       user: userFiltered,
     };
+  }
+
+  private async validateUserPassword({ inputPassword, userPassword }: any) {
+    const isPasswordMatch = await compare(inputPassword, userPassword);
+
+    if (!isPasswordMatch) {
+      throw new UnauthorizedException('Email e/ou senha inválidos');
+    }
   }
 }
