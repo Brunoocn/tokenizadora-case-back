@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ICryptoCompareProvider } from '../../providers/crypto-compare/ICryptoCompareProvider';
+import {
+  Coin,
+  ICryptoCompareProvider,
+} from '../../providers/crypto-compare/ICryptoCompareProvider';
 import { ProvidersEnum } from 'src/shared/generic-enums/providers_enum';
 
 @Injectable()
@@ -9,11 +12,11 @@ export class GetAllCoinsService {
     private readonly cryptoCompareProvider: ICryptoCompareProvider,
   ) {}
 
-  async execute() {
+  async execute(): Promise<Array<Coin>> {
     try {
-      const allCoinsList = await this.cryptoCompareProvider.getCoinList();
+      const allCoinsList = await this.cryptoCompareProvider.getCoinsList();
 
-      return allCoinsList.Data;
+      return allCoinsList;
     } catch (error) {
       throw new Error(error);
     }

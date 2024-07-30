@@ -1,5 +1,11 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { ICryptoCompareProvider } from '../ICryptoCompareProvider';
+import {
+  Coin,
+  DetailedCoin,
+  ICryptoCompareProvider,
+  IGetCoinDailyPriceVariety,
+  IObjectCoins,
+} from '../ICryptoCompareProvider';
 import axios, { Axios } from 'axios';
 
 @Injectable()
@@ -15,7 +21,7 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
       },
     });
   }
-  async getCoinList(): Promise<any> {
+  async getCoinsList(): Promise<Array<Coin>> {
     try {
       const params = {
         summary: true,
@@ -25,7 +31,7 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
         params,
       });
 
-      return data;
+      return this.formatObjectCoinstToListCoins(data.Data);
     } catch (err) {
       console.log('Error:', err);
       if (err.isAxiosError) {
@@ -35,24 +41,20 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
     }
   }
 
-  async getDetailsCoins(cryptoCoins: string): Promise<any> {
+  async getDetailsCoins(cryptoCoins: string): Promise<Array<DetailedCoin>> {
     try {
       const params = {
         fsyms: cryptoCoins,
         tsym: this.TYPE_CURRENCY,
       };
 
-      const data = await this.cryptoCompareApi.get(`/coin/generalinfo`, {
+      const {
+        data: { Data },
+      } = await this.cryptoCompareApi.get(`/coin/generalinfo`, {
         params,
       });
 
-      return data.data.Data.map(({ CoinInfo }) => {
-        return {
-          name: CoinInfo.Name,
-          fullName: CoinInfo.FullName,
-          imageUrl: CoinInfo.ImageUrl,
-        };
-      });
+      return this.formatPayloadDetailsCoins(Data);
     } catch (err) {
       console.log('Error:', err);
       if (err.isAxiosError) {
@@ -65,7 +67,7 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
   async getCoinDailyPriceVariety(
     cryptoCoinName: string,
     limit: number = 1,
-  ): Promise<any> {
+  ): Promise<IGetCoinDailyPriceVariety> {
     try {
       const params = {
         fsym: cryptoCoinName,
@@ -73,15 +75,17 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
         limit,
       };
 
-      const data = await this.cryptoCompareApi.get(`/histoday`, {
+      const {
+        data: { Data },
+      } = await this.cryptoCompareApi.get(`/histoday`, {
         params,
       });
-      const actualPrice = data.data.Data[0].close;
-      const price24hAgo = data.data.Data[1].close;
+      const actualPrice = Data[0].close;
+      const price24hAgo = Data[1].close;
       const variety = this.calculateVariety(actualPrice, price24hAgo);
       return {
         actualPrice,
-        variety,
+        variety: variety.toFixed(2),
         cryptoCoinName,
       };
     } catch (err) {
@@ -93,7 +97,36 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
     }
   }
 
+  private formatPayloadDetailsCoins(
+    data: Array<{
+      CoinInfo: {
+        Name: string;
+        FullName: string;
+        ImageUrl: string;
+      };
+    }>,
+  ) {
+    return data.map(({ CoinInfo }) => {
+      return {
+        name: CoinInfo.Name,
+        fullName: CoinInfo.FullName,
+        imageUrl: CoinInfo.ImageUrl,
+      };
+    });
+  }
+
+  private formatObjectCoinstToListCoins(objectCoins: IObjectCoins) {
+    const result = Object.keys(objectCoins).map((key) => {
+      return {
+        id: objectCoins[key].Id,
+        name: objectCoins[key].FullName,
+      };
+    });
+
+    return result;
+  }
+
   private calculateVariety(actualPrice: number, price24hAgo: number): number {
-    return ((actualPrice - price24hAgo) / price24hAgo) * 100;
+    return ((actualPrice - price24hAgo) / price24hAgo) * 100 * 100;
   }
 }

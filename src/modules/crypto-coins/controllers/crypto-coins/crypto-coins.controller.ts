@@ -10,14 +10,12 @@ export class CryptoCoinsController {
   ) {}
 
   @Get('/list-coins')
-  async loginUser(): Promise<any> {
+  async loginUser() {
     return this.getAllCoinsService.execute();
   }
 
   @Get('/get-coins-details')
-  async getCoinsDetails(
-    @Query() query: { cryptoCoinsNames: string },
-  ): Promise<any> {
+  async getCoinsDetails(@Query() query: { cryptoCoinsNames: string }) {
     return this.getDetailedCoinsService.execute(query.cryptoCoinsNames);
   }
 }
