@@ -5,6 +5,7 @@ import axios, { Axios } from 'axios';
 @Injectable()
 export class CryptoCompareProvider implements ICryptoCompareProvider {
   private cryptoCompareApi: Axios;
+  private TYPE_CURRENCY = 'USD';
 
   constructor() {
     this.cryptoCompareApi = axios.create({
@@ -26,7 +27,7 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
 
       return data;
     } catch (err) {
-      console.log('Error:', err); //debugger
+      console.log('Error:', err);
       if (err.isAxiosError) {
         throw new HttpException(err.message, err.code);
       }
@@ -34,25 +35,65 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
     }
   }
 
-  async getDetailsCoin(coinsNames: string): Promise<any> {
-    const TYPE_CURRENCY = 'USD';
+  async getDetailsCoins(cryptoCoins: string): Promise<any> {
     try {
       const params = {
-        fsyms: coinsNames,
-        tsym: TYPE_CURRENCY,
+        fsyms: cryptoCoins,
+        tsym: this.TYPE_CURRENCY,
       };
 
-      const { data } = await this.cryptoCompareApi.get(`/coin/generalinfo`, {
+      const data = await this.cryptoCompareApi.get(`/coin/generalinfo`, {
         params,
       });
 
-      return data;
+      return data.data.Data.map(({ CoinInfo }) => {
+        return {
+          name: CoinInfo.Name,
+          fullName: CoinInfo.FullName,
+          imageUrl: CoinInfo.ImageUrl,
+        };
+      });
     } catch (err) {
-      console.log('Error:', err); //debugger
+      console.log('Error:', err);
       if (err.isAxiosError) {
         throw new HttpException(err.message, err.code);
       }
       throw err;
     }
+  }
+
+  async getCoinDailyPriceVariety(
+    cryptoCoinName: string,
+    limit: number = 1,
+  ): Promise<any> {
+    try {
+      const params = {
+        fsym: cryptoCoinName,
+        tsym: this.TYPE_CURRENCY,
+        limit,
+      };
+
+      const data = await this.cryptoCompareApi.get(`/histoday`, {
+        params,
+      });
+      const actualPrice = data.data.Data[0].close;
+      const price24hAgo = data.data.Data[1].close;
+      const variety = this.calculateVariety(actualPrice, price24hAgo);
+      return {
+        actualPrice,
+        variety,
+        cryptoCoinName,
+      };
+    } catch (err) {
+      console.log('Error:', err);
+      if (err.isAxiosError) {
+        throw new HttpException(err.message, err.code);
+      }
+      throw err;
+    }
+  }
+
+  private calculateVariety(actualPrice: number, price24hAgo: number): number {
+    return ((actualPrice - price24hAgo) / price24hAgo) * 100;
   }
 }

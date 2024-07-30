@@ -15,7 +15,9 @@ export class CryptoCoinsController {
   }
 
   @Get('/get-coins-details')
-  async getCoinsDetails(@Query() query: { coins: string }): Promise<any> {
-    return this.getDetailedCoinsService.execute(query.coins);
+  async getCoinsDetails(
+    @Query() query: { cryptoCoinsNames: string },
+  ): Promise<any> {
+    return this.getDetailedCoinsService.execute(query.cryptoCoinsNames);
   }
 }

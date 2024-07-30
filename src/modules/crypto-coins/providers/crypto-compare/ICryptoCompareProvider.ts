@@ -1,4 +1,5 @@
 export interface ICryptoCompareProvider {
   getCoinList(): Promise<any>;
-  getDetailsCoin(coinsName: string): Promise<any>;
+  getDetailsCoins(cryptoCoins: string): Promise<any>;
+  getCoinDailyPriceVariety(cryptoCoinsNames: string): Promise<any>;
 }

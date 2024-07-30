@@ -9,13 +9,26 @@ export class GetCoinDetailsService {
     private readonly cryptoCompareProvider: ICryptoCompareProvider,
   ) {}
 
-  async execute(coinsNames: string) {
+  async execute(cryptoCoinsNames: string) {
     try {
-      const coinsDetails = await this.cryptoCompareProvider.getDetailsCoin(
-        coinsNames,
+      const coinsDetails = await this.cryptoCompareProvider.getDetailsCoins(
+        cryptoCoinsNames,
       );
 
-      return coinsDetails;
+      const coinsHistoryPricesPromises = cryptoCoinsNames.split(',').map(
+        async (coin) =>
+          this.cryptoCompareProvider.getCoinDailyPriceVariety(coin), //Alterar para getCoinDailyPriceVariety
+      );
+      const coinsHistoryPrices = await Promise.all(coinsHistoryPricesPromises);
+
+      return coinsDetails.map((coin, index) => {
+        return {
+          name: coin.name,
+          fullName: coin.fullName,
+          imageUrl: coin.imageUrl,
+          price: coinsHistoryPrices[index],
+        };
+      });
     } catch (error) {
       throw new Error(error);
     }
