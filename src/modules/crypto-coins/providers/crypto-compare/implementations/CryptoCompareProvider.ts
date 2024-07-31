@@ -86,7 +86,6 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
       return {
         actualPrice,
         variety: variety.toFixed(2),
-        cryptoCoinName,
       };
     } catch (err) {
       console.log('Error:', err);

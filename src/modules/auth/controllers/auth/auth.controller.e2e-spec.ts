@@ -31,7 +31,6 @@ describe('Authenticate (E2E)', () => {
       },
     });
 
-    
     const response = await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -39,7 +38,7 @@ describe('Authenticate (E2E)', () => {
         password: '123456',
       });
 
-    expect(response.statusCode).toBe(201);
+    expect(response.statusCode).toBe(200);
     expect(response.body).toEqual({
       token: expect.any(String),
       user: expect.objectContaining({
@@ -48,5 +47,29 @@ describe('Authenticate (E2E)', () => {
         email: expect.any(String),
       }),
     });
+  });
+
+  test('[POST] /register', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        name: 'John Doe',
+        email: 'jhondoe1@gmail.com',
+        password: '123456',
+      });
+
+    const userInDatabase = await prisma.user.findUnique({
+      where: {
+        email: 'jhondoe1@gmail.com',
+      },
+    });
+
+    expect(userInDatabase).toBeTruthy();
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        email: 'jhondoe1@gmail.com',
+      }),
+    );
   });
 });
