@@ -38,5 +38,6 @@ Vale lembrar que você deve configurar .env como o .env.exemple
   testar mais (se tivesse mais tempo com certeza era algo que eu focaria).
 - Caso tivesse mais tempo que eu faria seria utilizar websocket que seria o melhor jeito para fazer a conexão do front-end com
   o backend.
-- Outra coisa que faria seria melhorar as tratativas de erros para as respostas da api da crypto-compare e adicionar uma páginação
-  principalmente na listagem de todas as cryptos, por conta de a api não trazer isso para nós e acaba trazendo gargalos.
+- Outra coisa que faria seria melhorar as tratativas de erros para as respostas da api da crypto-compare, pois as vezes algumas moeda
+  estão disponiveis para uma rota mas não estão para outra, por exemplo está na listagem, porém não está disponivel o historico de preço
+  e adicionar uma páginação principalmente na listagem de todas as cryptos, por conta de a api não trazer isso para nós e acaba trazendo gargalos.
