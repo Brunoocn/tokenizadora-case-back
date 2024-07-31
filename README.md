@@ -31,7 +31,7 @@ O server irá subir na porta http://localhost:3005.
 
 Vale lembrar que você deve configurar .env como o .env.exemple
 
-# ⚡️ Projeto
+## ⚡️ Projeto
 
 - A ideia do projeto foi separar a arquitetura em controllers, services e repositories, utilizando uma arquitetura escalavel e de
   forma simples de acordo com a necessidade de projeto, adicionei testes nas partes essenciais do sistema, porém seria possivel
