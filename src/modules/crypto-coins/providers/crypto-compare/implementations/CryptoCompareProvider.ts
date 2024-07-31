@@ -120,6 +120,8 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
       };
     });
 
+    // Retornando apenas 500 cryptos da lista para evitar gargalos, pois a API retorna mais de 11000 cryptos sem paginação
+    //seria possivel retornar todas as cryptos, mas o tempo de resposta seria muito alto e poderia causar problemas de performance
     return result.slice(0, 500);
   }
 
