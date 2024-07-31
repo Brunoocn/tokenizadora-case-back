@@ -9,7 +9,6 @@ export interface ICryptoCompareProvider {
 export interface IGetCoinDailyPriceVariety {
   actualPrice: number;
   variety: string;
-  cryptoCoinName: string;
 }
 
 export type DetailedCoin = {
@@ -24,10 +23,8 @@ export type Coin = {
 };
 
 export type CryptoCurrency = {
-  Id: string;
-  ImageUrl: string;
-  Symbol: string;
-  FullName: string;
+  id: string;
+  symbol: string;
 };
 
 export interface IObjectCoins {

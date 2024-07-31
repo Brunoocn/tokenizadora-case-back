@@ -23,13 +23,7 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
   }
   async getCoinsList(): Promise<Array<Coin>> {
     try {
-      const params = {
-        summary: true,
-      };
-
-      const { data } = await this.cryptoCompareApi.get(`/all/coinlist`, {
-        params,
-      });
+      const { data } = await this.cryptoCompareApi.get(`/blockchain/list`);
 
       return this.formatObjectCoinstToListCoins(data.Data);
     } catch (err) {
@@ -60,7 +54,7 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
       if (err.isAxiosError) {
         throw new HttpException(err.message, err.code);
       }
-      throw err;
+      throw err.response;
     }
   }
 
@@ -80,16 +74,19 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
       } = await this.cryptoCompareApi.get(`/histoday`, {
         params,
       });
+
+      if (!Data) {
+        throw new HttpException('Coin not found', 404);
+      }
+
       const actualPrice = Data[0].close;
       const price24hAgo = Data[1].close;
       const variety = this.calculateVariety(actualPrice, price24hAgo);
       return {
         actualPrice,
         variety: variety.toFixed(2),
-        cryptoCoinName,
       };
     } catch (err) {
-      console.log('Error:', err);
       if (err.isAxiosError) {
         throw new HttpException(err.message, err.code);
       }
@@ -118,12 +115,14 @@ export class CryptoCompareProvider implements ICryptoCompareProvider {
   private formatObjectCoinstToListCoins(objectCoins: IObjectCoins) {
     const result = Object.keys(objectCoins).map((key) => {
       return {
-        id: objectCoins[key].Id,
-        name: objectCoins[key].FullName,
+        id: objectCoins[key].id,
+        name: objectCoins[key].symbol,
       };
     });
 
-    return result;
+    // Retornando apenas 500 cryptos da lista para evitar gargalos, pois a API retorna mais de 11000 cryptos sem paginação
+    //seria possivel retornar todas as cryptos, mas o tempo de resposta seria muito alto e poderia causar problemas de performance
+    return result.slice(0, 500);
   }
 
   private calculateVariety(actualPrice: number, price24hAgo: number): number {

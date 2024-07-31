@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 
 import {
   ILoginResponseDTO,
@@ -17,8 +17,14 @@ export class AuthController {
     private readonly registerService: RegisterService,
   ) {}
 
+  @Get('/token-valid')
+  async validToken(): Promise<boolean> {
+    return true;
+  }
+
   @SkipAuth()
   @Post('/login')
+  @HttpCode(200)
   async loginUser(
     @Body() { email, password }: LoginDTO,
   ): Promise<ILoginResponseDTO> {
@@ -27,6 +33,7 @@ export class AuthController {
 
   @SkipAuth()
   @Post('/register')
+  @HttpCode(201)
   async registerUser(
     @Body() { name, email, password }: RegisterDTO,
   ): Promise<IRegisterResponseDTO> {

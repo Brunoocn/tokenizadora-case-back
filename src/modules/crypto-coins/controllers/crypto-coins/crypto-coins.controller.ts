@@ -10,7 +10,7 @@ export class CryptoCoinsController {
   ) {}
 
   @Get('/list-coins')
-  async loginUser() {
+  async listCoins() {
     return this.getAllCoinsService.execute();
   }
 

@@ -15,10 +15,11 @@ export class GetCoinDetailsService {
         cryptoCoinsNames,
       );
 
-      const coinsHistoryPricesPromises = cryptoCoinsNames.split(',').map(
-        async (coin) =>
-          this.cryptoCompareProvider.getCoinDailyPriceVariety(coin), //Alterar para getCoinDailyPriceVariety
-      );
+      const coinsHistoryPricesPromises = cryptoCoinsNames
+        .split(',')
+        .map(async (coin) =>
+          this.cryptoCompareProvider.getCoinDailyPriceVariety(coin),
+        );
       const coinsHistoryPrices = await Promise.all(coinsHistoryPricesPromises);
 
       return coinsDetails.map((coin, index) => {

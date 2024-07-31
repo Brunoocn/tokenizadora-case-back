@@ -15,6 +15,7 @@ import { RepositoryEnum } from 'src/shared/generic-enums/repository_enum';
       provide: RepositoryEnum.UserRepository,
       useClass: UserRepository,
     },
+
     LoginService,
     JwtService,
     PrismaService,
