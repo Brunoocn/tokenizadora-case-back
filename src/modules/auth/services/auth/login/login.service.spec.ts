@@ -4,6 +4,7 @@ import { JwtService, JwtModule } from '@nestjs/jwt';
 import { hash } from 'bcrypt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { RepositoryEnum } from 'src/shared/generic-enums/repository_enum';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 describe('LoginService', () => {
   let inMemoryUserRepository: InMemoryUserRepository;
@@ -13,6 +14,7 @@ describe('LoginService', () => {
   beforeAll(() => {
     process.env.JWT_SECRET = 'testSecret';
     process.env.JWT_EXPIRES_IN = '1h';
+    process.env.ROUNDS_OF_HASHING = '10';
   });
 
   beforeEach(async () => {
@@ -45,7 +47,7 @@ describe('LoginService', () => {
         createdAt: new Date(),
         email: 'johnDoe@gmail.com',
         name: 'John Doe',
-        password: await hash('123456', 10),
+        password: await hash('123456', Number(process.env.ROUNDS_OF_HASHING)),
         updatedAt: new Date(),
         id: '1',
       };
@@ -63,7 +65,45 @@ describe('LoginService', () => {
         }),
       );
     });
-  });
 
-  
+    it('should not be able to authenticate an user with wrong email', async () => {
+      const user = {
+        createdAt: new Date(),
+        email: 'wrongpassword@gmail.com',
+        name: 'John Doe',
+        password: 'wrongpassword',
+        updatedAt: new Date(),
+        id: '1',
+      };
+
+      inMemoryUserRepository.users.push(user);
+
+      await expect(
+        loginService.execute({
+          email: 'johnDoe@gmail.com',
+          password: '123456',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should not be able to authenticate a user with wrong password', async () => {
+      const user = {
+        createdAt: new Date(),
+        email: 'johnDoe@gmail.com',
+        name: 'John Doe',
+        password: await hash('123456', Number(process.env.ROUNDS_OF_HASHING)),
+        updatedAt: new Date(),
+        id: '1',
+      };
+
+      inMemoryUserRepository.users.push(user);
+
+      await expect(
+        loginService.execute({
+          email: 'johnDoe@gmail.com',
+          password: 'wrongpassword',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+  });
 });

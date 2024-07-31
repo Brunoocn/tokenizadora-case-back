@@ -22,7 +22,7 @@ describe('Authenticate (E2E)', () => {
     await app.init();
   });
 
-  test('[POST] /login', async () => {
+  it('[POST] /login', async () => {
     await prisma.user.create({
       data: {
         name: 'John Doe',
@@ -49,7 +49,7 @@ describe('Authenticate (E2E)', () => {
     });
   });
 
-  test('[POST] /register', async () => {
+  it('[POST] /register', async () => {
     const response = await request(app.getHttpServer())
       .post('/auth/register')
       .send({

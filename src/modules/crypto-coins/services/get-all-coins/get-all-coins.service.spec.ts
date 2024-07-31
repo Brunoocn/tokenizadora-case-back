@@ -1,30 +1,62 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { GetAllCoinsService } from './get-all-coins.service';
+import { GetAllCoinsService } from '../../services/get-all-coins/get-all-coins.service';
+
+import {
+  ICryptoCompareProvider,
+  Coin,
+} from '../../providers/crypto-compare/ICryptoCompareProvider';
+import { ProvidersEnum } from 'src/shared/generic-enums/providers_enum';
 
 describe('GetAllCoinsService', () => {
-  let service: GetAllCoinsService;
+  let getAllCoinsService: GetAllCoinsService;
+  let cryptoCompareProvider: ICryptoCompareProvider;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [GetAllCoinsService],
+    const cryptoCompareProviderMock = {
+      getCoinsList: vi.fn(),
+    };
+
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      providers: [
+        GetAllCoinsService,
+        {
+          provide: ProvidersEnum.CryptoCompareProvider,
+          useValue: cryptoCompareProviderMock,
+        },
+      ],
     }).compile();
 
-    service = module.get<GetAllCoinsService>(GetAllCoinsService);
+    getAllCoinsService = moduleRef.get<GetAllCoinsService>(GetAllCoinsService);
+    cryptoCompareProvider = moduleRef.get<ICryptoCompareProvider>(
+      ProvidersEnum.CryptoCompareProvider,
+    );
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+  describe('execute', () => {
+    it('should return a list of coins', async () => {
+      const coinsList: Coin[] = [
+        { id: '1', name: 'Bitcoin' },
+        { id: '2', name: 'Ethereum' },
+      ];
 
-  it('should return a list of all coins', async () => {
-    const result = await service.execute();
+      vi.spyOn(cryptoCompareProvider, 'getCoinsList').mockResolvedValue(
+        coinsList,
+      );
 
-    expect(result).toBeDefined();
-  });
+      const result = await getAllCoinsService.execute();
 
-  it('should throw an error if something goes wrong', async () => {
-    jest.spyOn(service, 'execute').mockRejectedValue(new Error());
+      expect(result).toEqual(coinsList);
+    });
 
-    await expect(service.execute()).rejects.toThrowError();
+    it('should throw an error if the provider throws an error', async () => {
+      const errorMessage = 'Provider error';
+      vi.spyOn(cryptoCompareProvider, 'getCoinsList').mockRejectedValue(
+        new Error(errorMessage),
+      );
+
+      await expect(getAllCoinsService.execute()).rejects.toThrow(Error);
+      await expect(getAllCoinsService.execute()).rejects.toThrow(errorMessage);
+    });
   });
 });
